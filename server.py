@@ -6,24 +6,23 @@ app = Flask(__name__)
 @app.route("/emotionDetector")
 def sent_analyzer():
     """
-    Analyse le texte fourni pour détecter les émotions et renvoie
-    une chaîne de caractères formatée pour l'utilisateur.
+    Analyse le texte fourni et renvoie un message d'erreur si l'entrée est invalide.
     """
-    # Récupérer le texte envoyé par le script JavaScript (mywebscript.js)
     text_to_analyze = request.args.get('textToAnalyze')
-    
-    # Analyser le texte avec notre package EmotionDetection
     response = emotion_detector(text_to_analyze)
     
-    # Extraire les scores et l'émotion dominante
+    dominant_emotion = response['dominant_emotion']
+    
+    # Si l'émotion dominante est None, l'entrée était vide
+    if dominant_emotion is None:
+        return "Invalid text! Please try again!"
+        
     anger = response['anger']
     disgust = response['disgust']
     fear = response['fear']
     joy = response['joy']
     sadness = response['sadness']
-    dominant_emotion = response['dominant_emotion']
     
-    # Retourner la chaîne de caractères EXACTEMENT au format attendu par le correcteur IBM
     return (
         f"For the given statement, the system response is 'anger': {anger}, "
         f"'disgust': {disgust}, 'fear': {fear}, 'joy': {joy} and 'sadness': {sadness}. "
@@ -33,10 +32,9 @@ def sent_analyzer():
 @app.route("/")
 def render_index_page():
     """
-    Affiche la page d'accueil de l'application web.
+    Affiche la page d'accueil.
     """
     return render_template('index.html')
 
 if __name__ == "__main__":
-    # Déploiement sur localhost (0.0.0.0) sur le port 5000
     app.run(host="0.0.0.0", port=5000)
